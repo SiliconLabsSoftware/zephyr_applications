@@ -13,7 +13,7 @@
 
 # Silicon Labs Zephyr Applications #
 
-[![Version Badge](https://img.shields.io/badge/-v2.0.0-green)](https://github.com/SiliconLabs/zephyr_applications/releases)
+[![Version Badge](https://img.shields.io/badge/-v2.0.1-green)](https://github.com/SiliconLabsSoftware/zephyr_applications/releases)
 ![License badge](https://img.shields.io/badge/License-Zlib-green)
 
 This repository contains example projects that demonstrate various applications running on Zephyr OS supported on Silicon Labs Development Kits.
