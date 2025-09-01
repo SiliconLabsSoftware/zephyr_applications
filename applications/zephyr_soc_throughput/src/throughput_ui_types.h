@@ -34,6 +34,9 @@
  * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
+#ifndef THROUGHPUT_UI_TYPES_H_
+#define THROUGHPUT_UI_TYPES_H_
+
 /*******************************************************************************
  ******************************   DEFINITIONS   ********************************
  ******************************************************************************/
@@ -130,3 +133,5 @@ typedef enum
 #define THROUGHPUT_UI_CHARACTERISTICS_FOUND_FORMAT \
   "CHARACTERISTICS: "                              \
   "NOTIFY: %s INDICATE %s TRANSMISSION %s RESULT: %s"
+
+#endif

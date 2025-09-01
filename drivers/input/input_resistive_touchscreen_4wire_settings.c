@@ -17,9 +17,6 @@ LOG_MODULE_REGISTER(resistive_touchscreen_4wire_settings,
 
 #define RESISTIVE_TOUCH_SETTINGS_PATH_MAX 32
 
-#define MAX_AXES \
-  CONFIG_INPUT_RESISTIVE_TOUCHSCREEN_4WIRE_SETTINGS_MAX_AXES
-
 static void resistive_touchscreen_4wire_calibration_log(
   const struct device *dev)
 {
@@ -28,14 +25,14 @@ static void resistive_touchscreen_4wire_calibration_log(
   resistive_touchscreen_4wire_calibration_get(dev, &cal);
 
   LOG_INF(
-    "%s: x-min: %d x-max: %d y-min: %d y-max: %d r_xplate: %d r_touch_thres: %d",
+    "%s: x-min: %d x-max: %d y-min: %d y-max: %d r_xplate: %d r_touch_thres: %f",
     dev->name,
     cal.x_min,
     cal.x_max,
     cal.y_min,
     cal.y_max,
     cal.r_xplate,
-    cal.r_touch_thres);
+    (double)cal.r_touch_thres);
 }
 
 static int resistive_touchscreen_4wire_calibration_load(const char *key,
@@ -45,7 +42,6 @@ static int resistive_touchscreen_4wire_calibration_load(const char *key,
 {
   const struct device *dev;
   struct resistive_touchscreen_4wire_calibration cal;
-  int axes;
   char dev_name[RESISTIVE_TOUCH_SETTINGS_PATH_MAX];
   const char *next;
   int nlen;
@@ -71,10 +67,9 @@ static int resistive_touchscreen_4wire_calibration_load(const char *key,
     LOG_ERR("Data restore error: %d", len);
   }
 
-  axes = resistive_touchscreen_4wire_num_axes(dev);
-  if (len != sizeof(struct resistive_touchscreen_4wire_calibration) * axes) {
+  if (len != sizeof(struct resistive_touchscreen_4wire_calibration)) {
     LOG_ERR("Invalid settings data length: %d, expected %d",
-            len, sizeof(struct resistive_touchscreen_4wire_calibration) * axes);
+            len, sizeof(struct resistive_touchscreen_4wire_calibration));
     return -EIO;
   }
 
@@ -95,7 +90,6 @@ SETTINGS_STATIC_HANDLER_DEFINE(resistive_touchscreen_4wire,
 int resistive_touchscreen_4wire_calibration_save(const struct device *dev)
 {
   struct resistive_touchscreen_4wire_calibration cal;
-  int axes;
   char path[RESISTIVE_TOUCH_SETTINGS_PATH_MAX];
   int ret;
 

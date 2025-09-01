@@ -1,5 +1,5 @@
 &sensor_enable {
-	enable-gpios = <&gpioc GECKO_PIN(9) GPIO_ACTIVE_HIGH>;
+	enable-gpios = <&gpioc 9 GPIO_ACTIVE_HIGH>;
 	startup-delay-us = <100000>;
 };
 

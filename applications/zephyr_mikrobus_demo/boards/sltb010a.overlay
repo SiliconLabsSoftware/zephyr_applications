@@ -20,7 +20,7 @@
 		com-invdir;
 		prechargep = <0x25>;
 		spi-max-frequency = <8000000>;
-		data_cmd-gpios = <&gpioa 4 GPIO_ACTIVE_HIGH>;
+		data-cmd-gpios = <&gpioa 4 GPIO_ACTIVE_HIGH>;
 		reset-gpios = <&gpiob 1 GPIO_ACTIVE_LOW>;
 	};
 

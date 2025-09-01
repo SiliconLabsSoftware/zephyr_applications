@@ -13,8 +13,10 @@
 
 # Silicon Labs Zephyr Applications #
 
-[![Version Badge](https://img.shields.io/badge/-v2.0.1-green)](https://github.com/SiliconLabsSoftware/zephyr_applications/releases)
+[![Version Badge](https://img.shields.io/badge/-v2.1.0-green)](https://github.com/SiliconLabsSoftware/zephyr_applications/releases)
 ![License badge](https://img.shields.io/badge/License-Zlib-green)
+![Zephyr badge](https://img.shields.io/badge/Zephyr-4.2.0-green)
+![Zephyr SDK badge](https://img.shields.io/badge/Zephyr_SDK-0.17.2-green)
 
 This repository contains example projects that demonstrate various applications running on Zephyr OS supported on Silicon Labs Development Kits.
 All examples in this repository are considered to be EXPERIMENTAL QUALITY, which implies that the code provided in the repository has not been formally tested and is provided as-is. It is not suitable for production environments.
@@ -30,6 +32,15 @@ All examples in this repository are considered to be EXPERIMENTAL QUALITY, which
 |  5 |Zephyr - Modified SoC Thermometer | [Click Here](./applications/zephyr_modified_soc_thermometer/)|
 |  6 |Zephyr - SoC Throughput | [Click Here](./applications/zephyr_soc_throughput/)|
 |  7 |Zephyr - BTHome v2 - xG24/xG27 Dev Kit Sensors with LVGL | [Click Here](./applications/zephyr_bthome_v2/)|
+|  8 |Zephyr - OTA Firmware Update over BLE | [Click Here](./applications/zephyr_ota_firmware_update/)|
+|  9 |Zephyr - ST7789 Display Demo | [Click Here](./applications/zephyr_st7789_demo/)|
+
+
+## Requirements ##
+
+- [Zephyr 4.2.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.2.0)
+- [Zephyr SDK 0.17.2](https://docs.zephyrproject.org/latest/develop/toolchains/zephyr_sdk.html#zephyr-sdk-version-compatibility)
+ 
 
 ## Setting up environment ##
 
@@ -37,15 +48,14 @@ Follow the getting started guide here: [Zephyr Getting Started Guide](https://do
 
 1. [Select and Update OS](https://docs.zephyrproject.org/latest/develop/getting_started/index.html#select-and-update-os)
 
-2. [Install dependencies](https://docs.zephyrproject.org/latest/develop/getting_started/index.html#install-dependencies)
-
+2. [Install dependencies](https://docs.zephyrproject.org/latest/develop/getting_started/index.html#install-dependencies)  
   The current minimum required version for the main dependencies are:
 
-  | Tool | Min. Version |
-  |:--:|:---------------:|
-  |  [Cmake](https://cmake.org/) | 3.20.5 |
-  |  [Python](https://www.python.org/) | 3.10 |
-  |  [Devicetree complier](https://www.devicetree.org/) | 1.4.6 |
+    | Tool | Min. Version |
+    |:--:|:---------------:|
+    |  [Cmake](https://cmake.org/) | 3.20.5 |
+    |  [Python](https://www.python.org/) | 3.10 |
+    |  [Devicetree complier](https://www.devicetree.org/) | 1.4.6 |
 
 ## Setting up the workspace ##
 
@@ -74,23 +84,26 @@ The application structure is based on the [Zephyr example application](https://g
 
    `pip install west`
 
-3. Install the Zephyr SDK: Follow the guide here to install Zephyr SDK: https://docs.zephyrproject.org/latest/develop/getting_started/index.html#install-the-zephyr-sdk
-
-4. Clone the Zephyr applications repository of Silicon Labs.
+3. Clone the Zephyr applications repository of Silicon Labs.
 
    `cd zephyrproject`
 
    `git clone https://github.com/SiliconLabs/zephyr_applications.git`
 
-5. Initialize the workspace by running the following commands.
+4. Initialize the workspace by running the following commands.
 
    `west init -l zephyr_applications`
 
    `west update`
 
-6. Install additional Python dependencies.
+5. Install additional Python dependencies.
 
    `pip install -r zephyr/scripts/requirements.txt`
+
+6. Install the Zephyr SDK
+  
+    `cd ~/zephyrproject/zephyr`  
+    `west sdk install --version 0.17.2`
 
 7. Fetch and store the Silicon Labs pre-built libraries
 
@@ -98,23 +111,34 @@ The application structure is based on the [Zephyr example application](https://g
 
 8. Build & running the example application
 
-   The example applications is located at `applications` folder. Use west command to build and flash to the board.
+The example applications is located at `applications` folder. Use west command to build and flash to the board.
 
-   Build:
+- Build:
 
-   > `west build -p -b <board_id> <application_path>`
+  `west build -p -b <board_id> <application_path>`
 
-   Flash:
+> [!IMPORTANT]
+>
+> **Ensure You're Using Zephyr SDK 0.17.2**  
+> If you have multiple versions of the Zephyr SDK installed, make sure to use version 0.17.2 when building examples. You can do this by explicitly setting the ZEPHYR_SDK_INSTALL_DIR environment variable
+>
+> - macOS / Ubuntu: `export ZEPHYR_SDK_INSTALL_DIR=path/to/zephyr-sdk-0.17.2`
+> - Windows Command Line: `set ZEPHYR_SDK_INSTALL_DIR=path\to\zephyr-sdk-0.17.2`  
+> - PowerShell: `$env:ZEPHYR_SDK_INSTALL_DIR = "path\to\zephyr-sdk-0.17.2"`
+>
+> For more detailed instructions on how to set environment variables, please visit: [Developing with Zephyr » Environment Variables](https://docs.zephyrproject.org/latest/develop/env_vars.html#env-vars-zephyrrc)  
+> You can verify this by checking the build output log to confirm which Zephyr SDK version is being used.  
+> `-- Found host-tools: zephyr 0.17.2 (/path/to/zephyr-sdk-0.17.2)`
 
-   > `west flash`
+- Flash:
 
-**Note:**
+  `west flash`
 
-- Refer to the example application documentation (the README file) to get more details on how to build and run each example applications.
-
-- For more information regarding setting up the environment, please refer to [this guide](https://docs.zephyrproject.org/latest/develop/getting_started/index.html) on Zephyr's homepage.
-
-- We would advise using the Python version 3.10.
+> [!TIP]
+>
+> - Refer to the example application documentation (the README file) to get more details on how to build and run each example applications.
+> - For more information regarding setting up the environment, please refer to [this guide](https://docs.zephyrproject.org/latest/develop/getting_started/index.html) on Zephyr's homepage.
+> - We would advise using the Python version 3.10.
 
 ## How to make your own application ##
 
@@ -154,6 +178,12 @@ For further information related to building the application, see [this section](
 
 ### Flash the application ###
 
+> [!IMPORTANT]
+>
+> **If you are using the Arduino Nano Matter board:**
+>
+> Refer to [this guide](./README.OpenOCD.md) for instructions on compiling, installing, and running OpenOCD for flashing and debugging.
+
 From a Zephyr build directory, re-build the binary and flash it to your board:
 
 `west flash`
@@ -164,9 +194,9 @@ To specify the build directory, you have to use `--build-dir` (or `-d`):
 
 If you don’t specify the build directory, `west flash` searches for one in the `build` directory in your current working directory.
 
-**Note:**
-
-- To flash the binary to the board, we advise installing and using the **SEGGER RTT J-Link** driver. You can download it [here](https://www.segger.com/downloads/jlink/).
+> [!NOTE]
+>
+> To flash the binary to the board, we advise installing and using the **SEGGER RTT J-Link** driver. You can download it [here](https://www.segger.com/downloads/jlink/).
 
 ### Logging data ##
 

@@ -3,11 +3,11 @@
 ![Type badge](https://img.shields.io/badge/Type-Virtual%20Application-green)
 ![Technology badge](https://img.shields.io/badge/Technology-Zephyr-green)
 ![License badge](https://img.shields.io/badge/License-Zlib-green)
-![SDK badge](https://img.shields.io/badge/Zephyr%20version-v4.0.0-green)
+![SDK badge](https://img.shields.io/badge/Zephyr%20version-v4.2.0-green)
 [![Required board](https://img.shields.io/badge/Sparkfun-Micro%20OLED%20Breakout%20(Qwiic)-green)](https://www.sparkfun.com/products/14532)
 ![Build badge](https://img.shields.io/badge/Build-passing-green)
-![Flash badge](https://img.shields.io/badge/Flash-66.36%20KB-blue)
-![RAM badge](https://img.shields.io/badge/RAM-14.45%20KB-blue)
+![Flash badge](https://img.shields.io/badge/Flash-67.37%20KB-blue)
+![RAM badge](https://img.shields.io/badge/RAM-14.47%20KB-blue)
 
 ## Summary ##
 
@@ -17,7 +17,7 @@ The example demonstrates the utilization of the onboard SI7210 Hall sensor with 
 
 ## Zephyr version ##
 
-- [Zephyr 4.0.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.0.0)
+- [Zephyr 4.2.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.2.0)
 
 ## Hardware Required ##
 

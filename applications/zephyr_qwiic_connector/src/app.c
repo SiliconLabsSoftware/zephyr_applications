@@ -128,6 +128,7 @@ static void app_oled_init(void)
   display_blanking_off(display);
 
   cfb_framebuffer_set_font(display, SELECTED_FONT_INDEX);
+  cfb_framebuffer_invert(display);
 
   LOG_INF("SparkFun Micro OLED Breakout initialized successfully.");
 }

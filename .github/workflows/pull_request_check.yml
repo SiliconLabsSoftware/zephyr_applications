@@ -1,0 +1,315 @@
+name: CI-Check
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+env:
+  CI_REPO_DIR: ${{ github.workspace }}/application_examples_ci
+  WORKSPACE: ${{ github.workspace }}
+
+jobs:
+  readme_structure:
+    runs-on: ubuntu-latest
+    outputs:
+      result_readme: ${{ steps.check_readme.outputs.result_readme }}
+    steps:
+    - name: Create GitHub App Token
+      id: app-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ secrets.GH_APP_ID }}
+        private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+
+    - name: Checkout code repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository  }}
+        token: ${{ steps.app-token.outputs.token }}
+        path: 'projects'
+
+    - name: Checkout tools repository
+      uses: actions/checkout@v4
+      with:
+        repository: SiliconLabsSoftware/aep_ci_tools
+        ref: 'pr_checking'
+        token: ${{ steps.app-token.outputs.token }}
+        path: 'aep_ci_tools'
+
+    - name: Check the changes
+      id: pr_check
+      run: |
+        cd projects
+        bash ${{ github.workspace }}/aep_ci_tools/zephyr/zephyr_check_changed_projects.sh \
+        ${{ github.base_ref }} ${{ github.event.pull_request.number }}
+
+        if [ ! -f changed_projects.txt ] || [ ! -s changed_projects.txt ]; then
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "No project changes detected...........Skipped"
+          exit 0
+        fi
+        echo "has_changes=true" >> $GITHUB_OUTPUT
+        echo "...........Changed projects:..........."
+        cat changed_projects.txt
+
+    - name: Run test
+      if: ${{ steps.pr_check.outputs.has_changes == 'true' }}
+      id: check_readme
+      run : |
+        echo "result_readme=failure" >> $GITHUB_OUTPUT
+
+        cd projects
+        bash ${{ github.workspace }}/aep_ci_tools/zephyr/zephyr_check_readme.sh \
+        changed_projects.txt > readme_file_report.log
+
+        GREP_COLORS='mt=32' grep --color=always 'PASS\|$' readme_file_report.log | GREP_COLORS='mt=31' grep --color=always 'FAILURE\|$'
+        if grep -qe "FAILURE" readme_file_report.log; then
+          echo ""
+          echo "Summary: The README.md file does not follow the standard structure. Please revise it to comply with the expected format."
+          exit 1
+        else
+          echo ""
+          echo "Summary: The README.md file follows the standard structure."
+          echo "result_readme=success" >> $GITHUB_OUTPUT
+        fi
+
+  coding_convention:
+    runs-on: ubuntu-latest
+    outputs:
+      result_coding: ${{ steps.check_coding.outputs.result_coding }}
+    steps:
+    - name: Create GitHub App Token
+      id: app-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ secrets.GH_APP_ID }}
+        private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+
+    - name: Checkout code repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository  }}
+        token: ${{ steps.app-token.outputs.token }}
+        path: 'projects'
+
+    - name: Checkout tools repository
+      uses: actions/checkout@v4
+      with:
+        repository: SiliconLabsSoftware/aep_ci_tools
+        ref: 'pr_checking'
+        token: ${{ steps.app-token.outputs.token }}
+        path: 'aep_ci_tools'
+
+    - name: Check the changes
+      id: pr_check
+      run: |
+        cd projects
+        bash ${{ github.workspace }}/aep_ci_tools/zephyr/zephyr_check_changed_projects.sh \
+        ${{ github.base_ref }} ${{ github.event.pull_request.number }}
+
+        if [ ! -f changed_projects.txt ] || [ ! -s changed_projects.txt ]; then
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "No project changes detected...........Skipped"
+          exit 0
+        fi
+        echo "has_changes=true" >> $GITHUB_OUTPUT
+        echo "...........Changed projects:..........."
+
+        cat changed_projects.txt
+
+    - name: Run test
+      if: ${{ steps.pr_check.outputs.has_changes == 'true' }}
+      run : |
+        cd projects
+        xargs -I{} -a changed_projects.txt find applications/{} -type f -name "*.[ch]" > source_list.txt
+        bash ${{ github.workspace }}/aep_ci_tools/scripts/check_coding_style.sh source_list.txt > coding_style_report.html
+
+    - name: Upload Result
+      id: html_report
+      if: ${{ steps.pr_check.outputs.has_changes == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: coding_style_report
+        path: projects/coding_style_report.html
+        retention-days: 90
+
+    - name: Browse the formatted files by Uncrustify
+      id: solution_report
+      if: ${{ steps.pr_check.outputs.has_changes == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: uncrustify_formatted_files
+        path: projects/uncrustify_formatted_files.zip
+        if-no-files-found: ignore
+
+    - name: Check log file to set status of the job
+      if: ${{ steps.pr_check.outputs.has_changes == 'true' }}
+      id: check_coding
+      run: |
+        echo "result_coding=failure" >> $GITHUB_OUTPUT
+
+        cd projects
+        echo "Check report here: ${{ steps.html_report.outputs.artifact-url }}"
+        if grep -qe "failed" coding_style_report.html; then
+          echo "Result: Failure"
+          echo "Check Solution here: ${{ steps.solution_report.outputs.artifact-url }}"
+          exit 1
+        else
+          echo "Result: Success"
+          echo "result_coding=success" >> $GITHUB_OUTPUT
+        fi
+
+  build_firmware:
+    runs-on: ubuntu-latest
+    outputs:
+      result_build: ${{ steps.check_build.outputs.result_build }}
+    steps:
+    - name: Get repository name
+      run: |
+        REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d "/" -f 2)
+        echo "repo=$REPO_NAME" >> $GITHUB_ENV
+        mkdir -p $WORKSPACE/application_examples_ci/$repo
+
+    - name: Create GitHub App Token
+      id: app-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ secrets.GH_APP_ID }}
+        private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+
+    - name: Checkout code repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository  }}
+        token: ${{ steps.app-token.outputs.token }}
+        path: 'projects'
+
+    - name: Checkout tools repository
+      uses: actions/checkout@v4
+      with:
+        repository: SiliconLabsSoftware/aep_ci_tools
+        ref: 'pr_checking'
+        token: ${{ steps.app-token.outputs.token }}
+        path: 'aep_ci_tools'
+
+    - name: Check the changes
+      id: pr_check
+      run: |
+        cd projects
+        bash ${{ github.workspace }}/aep_ci_tools/zephyr/zephyr_check_changed_projects.sh \
+        ${{ github.base_ref }} ${{ github.event.pull_request.number }}
+
+        if [ ! -f changed_projects.txt ] || [ ! -s changed_projects.txt ]; then
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "No project changes detected...........Skipped"
+          exit 0
+        fi
+        echo "has_changes=true" >> $GITHUB_OUTPUT
+        echo "...........Changed projects:..........."
+        cat changed_projects.txt
+
+    - name: Setup Java
+      if: ${{ steps.pr_check.outputs.has_changes == 'true' }}
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'oracle'
+        java-version: '21'
+
+    - name: Set up Python 3.10
+      if: ${{ steps.pr_check.outputs.has_changes == 'true' }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Run build the projects
+      if: ${{ steps.pr_check.outputs.has_changes == 'true' }}
+      id: check_build
+      run : |
+          echo "result_build=failure" >> $GITHUB_OUTPUT
+
+          bash $WORKSPACE/aep_ci_tools/zephyr/install_zephyr_dependencies.sh
+          python3 -m venv ~/zephyrproject/.venv
+          . ~/zephyrproject/.venv/bin/activate
+          pip3 install west > /dev/null 2>&1
+          cd ~/zephyrproject
+          mkdir -p zephyr_applications
+          cp -r $WORKSPACE/projects/* zephyr_applications
+          west init -l zephyr_applications
+          west update > /dev/null 2>&1
+          west zephyr-export
+          pip3 install -r ~/zephyrproject/zephyr/scripts/requirements.txt > /dev/null 2>&1
+          bash $WORKSPACE/aep_ci_tools/zephyr/install_zephyr_sdk.sh
+
+          cd ~/zephyrproject
+          export SCRIPT_PATH=$WORKSPACE/aep_ci_tools/zephyr/zephyz_checkproject.py
+          python3 -u $SCRIPT_PATH ${{ github.workspace}}/projects/changed_projects.txt
+
+          GREP_COLORS='mt=32' grep --color=always 'Pass\|$' ${{ github.workspace }}/build_test_project.log | GREP_COLORS='mt=31' grep --color=always 'Fail\|$'
+          if grep -qe "Fail" ${{ github.workspace }}/build_test_project.log; then
+            if [ -f $WORKSPACE/zephyz_build_fail.log ]; then
+              cat $WORKSPACE/zephyz_build_fail.log
+            fi
+            exit 1
+          else
+            echo "result_build=success" >> $GITHUB_OUTPUT
+          fi
+
+    - name: Update Shield
+      if: steps.pr_check.outputs.has_changes == 'true' && github.repository_visibility != 'public'
+      run: |
+        cp ${{ github.workspace}}/projects/changed_projects.txt ${{ github.workspace}}/changed_projects.txt
+        cd projects
+        git clean -xdf
+
+        cd ${{ github.workspace}}
+        export SCRIPT_PATH="${{ github.workspace}}/aep_ci_tools/scripts/github_shield.py"
+        python3 -u $SCRIPT_PATH --check_change ${{ github.workspace}}/changed_projects.txt
+
+        if [ ${{ steps.check_build.outputs.result_build }} == success ]; then
+          cd ${{ github.workspace}}/projects
+          if [ -n "$(git status --porcelain)" ]; then
+          {
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "Automatically update Shield for README.md"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          }
+          else
+            echo "No changes README.md";
+          fi
+        fi
+
+  bot_approve:
+    needs: [readme_structure, coding_convention, build_firmware]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Generate a review from check statuses
+        run: |
+          export CHECK_README=${{ needs.readme_structure.outputs.result_readme }}
+          export CHECK_CODING=${{ needs.coding_convention.outputs.result_coding }}
+          export CHECK_BUILD_FW=${{ needs.build_firmware.outputs.result_build }}
+
+          REQUIRED_CHECKS="$CHECK_README $CHECK_CODING $CHECK_BUILD_FW"
+          echo $REQUIRED_CHECKS
+          if [[ $REQUIRED_CHECKS == *"success"* && $REQUIRED_CHECKS != *"failure"* ]]; then
+            curl -X POST -H "Authorization: token ${{ steps.app-token.outputs.token }}" \
+              -d '{"event":"APPROVE"}' \
+              https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/${{ github.event.pull_request.number }}/reviews
+          else
+            curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ steps.app-token.outputs.token }}" \
+            https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/${{ github.event.pull_request.number }}/reviews \
+            -d '{"commit_id":"${{ github.sha }}", "body":"Some checks were not successful!", "event":"REQUEST_CHANGES"}'
+          fi

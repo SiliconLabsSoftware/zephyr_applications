@@ -40,8 +40,6 @@
 
 #include "throughput_gattdb.h"
 
-#ifndef CONFIG_BT_GATT_DYNAMIC_DB
-
 /* Throughput Test Service */
 struct bt_uuid_128 throughput_test_service_uuid = BT_UUID_INIT_128(
   BT_UUID_128_ENCODE(0xbbb99e70, 0xfff7, 0x46cf, 0xabc7, 0x2d32c71820f2));
@@ -555,5 +553,3 @@ void throughput_gattdb_register_ccc_changed_cb(void (*cb)(
 {
   ccc_changed_cb = cb;
 }
-
-#endif // #ifndef CONFIG_BT_GATT_DYNAMIC_DB

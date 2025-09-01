@@ -110,60 +110,6 @@ static const struct bt_data ad[] = {
   BT_DATA(BT_DATA_NAME_COMPLETE, DEVICE_NAME, DEVICE_NAME_LEN)
 };
 
-#ifdef CONFIG_BT_GATT_DYNAMIC_DB
-
-/* Throughput Test Service */
-static const struct bt_uuid_128 throughput_test_service_uuid = BT_UUID_INIT_128(
-  BT_UUID_128_ENCODE(0xbbb99e70, 0xfff7, 0x46cf, 0xabc7, 0x2d32c71820f2));
-
-// /* Throughput Information Service */
-static const struct bt_uuid_128 throughput_information_service_uuid =
-  BT_UUID_INIT_128(
-    BT_UUID_128_ENCODE(0xba1e0e9f, 0x4d81, 0xbae3, 0xf748, 0x3ad55da38b46));
-
-/* Indications characteristic */
-static const struct bt_uuid_128 indication_char_uuid = BT_UUID_INIT_128(
-  BT_UUID_128_ENCODE(0x6109b631, 0xa643, 0x4a51, 0x83d2, 0x2059700ad49f));
-
-/* Notifications characteristic */
-static const struct bt_uuid_128 notification_char_uuid = BT_UUID_INIT_128(
-  BT_UUID_128_ENCODE(0x47b73dd6, 0xdee3, 0x4da1, 0x9be0, 0xf5c539a9a4be));
-
-/* Transmission ON characteristic */
-static const struct bt_uuid_128 transmission_on_char_uuid = BT_UUID_INIT_128(
-  BT_UUID_128_ENCODE(0xbe6b6be1, 0xcd8a, 0x4106, 0x9181, 0x5ffe2bc67718));
-
-/* Throughput result characteristic */
-static const struct bt_uuid_128 throughput_result_char_uuid = BT_UUID_INIT_128(
-  BT_UUID_128_ENCODE(0xadf32227, 0xb00f, 0x400c, 0x9eeb, 0xb903a6cc291b));
-
-/* Connection PHY characteristic */
-static const struct bt_uuid_128 connection_phy_char_uuid = BT_UUID_INIT_128(
-  BT_UUID_128_ENCODE(0x00a82b93, 0x0feb, 0x2739, 0x72be, 0xabda1f5993d0));
-
-/* Connection interval characteristic */
-static const struct bt_uuid_128 connection_interval_char_uuid =
-  BT_UUID_INIT_128(
-    BT_UUID_128_ENCODE(0x0a32f5a6, 0x0a6c, 0x4954, 0xf413, 0xa698faf2c664));
-
-/* Responder latency characteristic */
-static const struct bt_uuid_128 responder_latency_char_uuid = BT_UUID_INIT_128(
-  BT_UUID_128_ENCODE(0xff629b92, 0x332b, 0xe7f7, 0x975f, 0x0e535872ddae));
-
-/* Supervision timeout characteristic */
-static const struct bt_uuid_128 supervision_timeout_char_uuid =
-  BT_UUID_INIT_128(
-    BT_UUID_128_ENCODE(0x67e2c4f2, 0x2f50, 0x914c, 0xa611, 0xadb3727b056d));
-
-/* PDU size characteristic */
-static const struct bt_uuid_128 pdu_size_char_uuid = BT_UUID_INIT_128(
-  BT_UUID_128_ENCODE(0x30cc364a, 0x0739, 0x268c, 0x4926, 0x36f112631e0c));
-
-/* MTU size characteristic */
-static const struct bt_uuid_128 mtu_size_char_uuid = BT_UUID_INIT_128(
-  BT_UUID_128_ENCODE(0x3816df2f, 0xd974, 0xd915, 0xd26e, 0x78300f25e86e));
-#endif // #ifdef CONFIG_BT_GATT_DYNAMIC_DB
-
 /*******************************************************************************
  *****************************  LOCAL VARIABLES   ******************************
  ******************************************************************************/
@@ -337,120 +283,6 @@ static K_TIMER_DEFINE(indication_timer,
 // -----------------------------------------------------------------------------
 //                       Marcos
 // -----------------------------------------------------------------------------
-#ifdef CONFIG_BT_GATT_DYNAMIC_DB
-static struct bt_gatt_attr attr_throughput_test_svc[] = {
-  BT_GATT_PRIMARY_SERVICE(&throughput_test_service_uuid),
-
-  BT_GATT_CHARACTERISTIC(&indication_char_uuid.uuid,
-                         BT_GATT_CHRC_INDICATE,
-                         BT_GATT_PERM_NONE,
-                         NULL,
-                         NULL,
-                         NULL),
-  BT_GATT_CCC(indication_ccc_changed,
-              BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-  BT_GATT_CUD("Indication data array", BT_GATT_PERM_READ),
-
-  BT_GATT_CHARACTERISTIC(&notification_char_uuid.uuid,
-                         BT_GATT_CHRC_NOTIFY,
-                         BT_GATT_PERM_NONE,
-                         NULL,
-                         NULL,
-                         NULL),
-  BT_GATT_CCC(notification_ccc_changed,
-              BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-  BT_GATT_CUD("Notification data array", BT_GATT_PERM_READ),
-
-  BT_GATT_CHARACTERISTIC(&transmission_on_char_uuid.uuid,
-                         BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE
-                         | BT_GATT_CHRC_WRITE_WITHOUT_RESP | BT_GATT_CHRC_NOTIFY,
-                         BT_GATT_PERM_WRITE | BT_GATT_PERM_READ,
-                         transmission_on_char_read,
-                         bt_evt_gatt_server_attribute_value_callback,
-                         &transmission_on),
-  BT_GATT_CCC(transmission_on_ccc_changed,
-              BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-  BT_GATT_CUD("Transmission ON", BT_GATT_PERM_READ),
-
-  BT_GATT_CHARACTERISTIC(&throughput_result_char_uuid.uuid,
-                         BT_GATT_CHRC_READ | BT_GATT_CHRC_INDICATE,
-                         BT_GATT_PERM_READ,
-                         NULL,
-                         NULL,
-                         NULL),
-  BT_GATT_CCC(throughput_result_ccc_changed,
-              BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-  BT_GATT_CUD("Throughput result", BT_GATT_PERM_READ),
-};
-static struct bt_gatt_service throughput_test_svc = BT_GATT_SERVICE(
-  attr_throughput_test_svc);
-
-static struct bt_gatt_attr attr_throughput_information_svc[] = {
-  BT_GATT_PRIMARY_SERVICE(&throughput_information_service_uuid),
-
-  BT_GATT_CHARACTERISTIC(&connection_phy_char_uuid.uuid,
-                         BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
-                         BT_GATT_PERM_READ,
-                         connection_phy_char_read,
-                         NULL,
-                         &(peripheral_state.phy)),
-  BT_GATT_CCC(connection_phy_ccc_changed,
-              BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-  BT_GATT_CUD("Connection PHY status", BT_GATT_PERM_READ),
-
-  BT_GATT_CHARACTERISTIC(&connection_interval_char_uuid.uuid,
-                         BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
-                         BT_GATT_PERM_READ,
-                         connection_interval_char_read,
-                         NULL,
-                         &(peripheral_state.interval)),
-  BT_GATT_CCC(connection_interval_ccc_changed,
-              BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-  BT_GATT_CUD("Connection interval (in 1.25 ms steps)", BT_GATT_PERM_READ),
-
-  BT_GATT_CHARACTERISTIC(&responder_latency_char_uuid.uuid,
-                         BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
-                         BT_GATT_PERM_READ,
-                         connection_responder_latency_char_read,
-                         NULL,
-                         &(peripheral_state.connection_responder_latency)),
-  BT_GATT_CCC(responder_latency_ccc_changed,
-              BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-  BT_GATT_CUD("Responder latency (in connection intervals)", BT_GATT_PERM_READ),
-
-  BT_GATT_CHARACTERISTIC(&supervision_timeout_char_uuid.uuid,
-                         BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
-                         BT_GATT_PERM_READ,
-                         connection_timeout_char_read,
-                         NULL,
-                         &(peripheral_state.connection_timeout)),
-  BT_GATT_CCC(supervision_timeout_ccc_changed,
-              BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-  BT_GATT_CUD("Supervision timeout (in 10 ms steps)", BT_GATT_PERM_READ),
-
-  BT_GATT_CHARACTERISTIC(&pdu_size_char_uuid.uuid,
-                         BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
-                         BT_GATT_PERM_READ,
-                         pdu_size_char_read,
-                         NULL,
-                         &(peripheral_state.pdu_size)),
-  BT_GATT_CCC(pdu_size_ccc_changed,
-              BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-  BT_GATT_CUD("PDU size in bytes", BT_GATT_PERM_READ),
-
-  BT_GATT_CHARACTERISTIC(&mtu_size_char_uuid.uuid,
-                         BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
-                         BT_GATT_PERM_READ,
-                         mtu_size_char_read,
-                         NULL,
-                         &(peripheral_state.mtu_size)),
-  BT_GATT_CCC(mtu_size_ccc_changed,
-              BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
-  BT_GATT_CUD("MTU size in bytes", BT_GATT_PERM_READ),
-};
-static struct bt_gatt_service throughput_information_svc = BT_GATT_SERVICE(
-  attr_throughput_information_svc);
-#endif // #ifdef CONFIG_BT_GATT_DYNAMIC_DB
 
 /*******************************************************************************
  **************************   LOCAL FUNCTIONS   ********************************
@@ -474,7 +306,7 @@ static const char *uuid_to_str(const struct bt_uuid *uuid)
 //   return found_attr && (attr->handle == found_attr->handle);
 // }
 
-#ifdef CONFIG_BT_CTLR_TX_PWR_DYNAMIC_CONTROL
+#if defined(CONFIG_BT_CTLR_TX_PWR_DYNAMIC_CONTROL)
 static int hci_set_tx_power(uint8_t handle_type,
                             uint16_t handle,
                             int8_t tx_pwr_lvl)
@@ -484,8 +316,7 @@ static int hci_set_tx_power(uint8_t handle_type,
   struct net_buf *buf, *rsp = NULL;
   int err;
 
-  buf = bt_hci_cmd_create(BT_HCI_OP_VS_WRITE_TX_POWER_LEVEL,
-                          sizeof(*cp));
+  buf = bt_hci_cmd_alloc(K_MSEC(100));
   if (!buf) {
     LOG_ERR("Unable to allocate command buffer\n");
     return -1;
@@ -524,8 +355,7 @@ static int hci_get_tx_power(uint8_t handle_type,
   int err;
 
   *tx_pwr_lvl = 0xFF;
-  buf = bt_hci_cmd_create(BT_HCI_OP_VS_READ_TX_POWER_LEVEL,
-                          sizeof(*cp));
+  buf = bt_hci_cmd_alloc(K_MSEC(100));
   if (!buf) {
     LOG_ERR("Unable to allocate command buffer\n");
     return -1;
@@ -603,6 +433,26 @@ static int get_tx_power(int8_t *tx_pwr_lvl)
   }
 }
 
+#else
+static int set_tx_power(int8_t tx_pwr_lvl)
+{
+  (void)tx_pwr_lvl;
+
+  LOG_ERR("Set Tx power is not supported.");
+  return -1;
+}
+
+static int get_tx_power(int8_t *tx_pwr_lvl)
+{
+  (void)tx_pwr_lvl;
+
+  LOG_ERR("Get Tx power is not supported.");
+  return -1;
+}
+
+#endif // CONFIG_BT_CTLR_TX_PWR_DYNAMIC_CONTROL
+
+#if defined(CONFIG_BT_CTLR_CONN_RSSI)
 static int read_conn_rssi(struct bt_conn *conn, int8_t *rssi)
 {
   struct net_buf *buf, *rsp = NULL;
@@ -618,14 +468,14 @@ static int read_conn_rssi(struct bt_conn *conn, int8_t *rssi)
     return err;
   }
 
-  buf = bt_hci_cmd_create(BT_HCI_OP_READ_RSSI, sizeof(*cp));
+  buf = bt_hci_cmd_alloc(K_MSEC(100));
   if (!buf) {
     LOG_ERR("Unable to allocate command buffer\n");
     return -1;
   }
 
   cp = net_buf_add(buf, sizeof(*cp));
-  cp->handle = sys_cpu_to_le16(handle);
+  cp->handle = sys_cpu_to_le16(conn_handle);
 
   err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_RSSI, buf, &rsp);
   if (err) {
@@ -652,23 +502,7 @@ static int read_conn_rssi(struct bt_conn *conn, int8_t *rssi)
   return -1;
 }
 
-static int set_tx_power(int8_t tx_pwr_lvl)
-{
-  (void)tx_pwr_lvl;
-
-  LOG_ERR("Set Tx power is not supported.");
-  return -1;
-}
-
-static int get_tx_power(int8_t *tx_pwr_lvl)
-{
-  (void)tx_pwr_lvl;
-
-  LOG_ERR("Get Tx power is not supported.");
-  return -1;
-}
-
-#endif // CONFIG_BT_CTLR_TX_PWR_DYNAMIC_CONTROL
+#endif // CONFIG_BT_CTLR_CONN_RSSI
 
 static ssize_t on_char_read(enum throughput_gattdb_char c,
                             struct bt_conn *conn,
@@ -1227,6 +1061,7 @@ static void throughput_peripheral_event_handle(struct bt_evt *evt)
                           K_MSEC(THROUGHPUT_TX_REFRESH_TIMER_PERIOD),
                           K_MSEC(THROUGHPUT_TX_REFRESH_TIMER_PERIOD));
 
+#if defined(CONFIG_BT_TRANSMIT_POWER_CONTROL)
             // Set remote connection power reporting - needed for Power Control
             err = bt_conn_le_set_tx_power_report_enable(
               evt->data.connection_opened.conn,
@@ -1235,7 +1070,7 @@ static void throughput_peripheral_event_handle(struct bt_evt *evt)
             if (err) {
               LOG_ERR(" Set power reporting failed (err %d)", err);
             }
-
+#endif /* CONFIG_BT_TRANSMIT_POWER_CONTROL */
             // Discover & subscribe to service provided by the mobile app
             err = bt_evt_discover_attr(evt->data.connection_opened.conn,
                                        BT_GATT_DISCOVER_PRIMARY,
@@ -1359,6 +1194,7 @@ static void throughput_peripheral_event_handle(struct bt_evt *evt)
       }
       break;
 
+#if defined(CONFIG_BT_TRANSMIT_POWER_CONTROL)
     case bt_evt_tx_power_report_id:
       peripheral_state.tx_power = evt->data.tx_power_report.tx_power_level;
       peripheral_state.phy = evt->data.tx_power_report.phy;
@@ -1378,6 +1214,7 @@ static void throughput_peripheral_event_handle(struct bt_evt *evt)
         }
       }
       break;
+#endif /* CONFIG_BT_TRANSMIT_POWER_CONTROL */
 
     case bt_evt_exchange_mtu_id:
       peripheral_state.mtu_size = bt_gatt_get_mtu(evt->data.exchange_mtu.conn);
@@ -1941,24 +1778,9 @@ void throughput_peripheral_enable(void)
 {
   int err;
 
-#ifdef CONFIG_BT_GATT_DYNAMIC_DB
-  if (!bt_gatt_service_is_registered(&throughput_information_svc)) {
-    err = bt_gatt_service_register(&throughput_information_svc);
-    if (err) {
-      LOG_ERR("Register GATT service failed (err = %d)", err);
-    }
-  }
-  if (!bt_gatt_service_is_registered(&throughput_test_svc)) {
-    err = bt_gatt_service_register(&throughput_test_svc);
-    if (err) {
-      LOG_ERR("Register GATT service failed (err = %d)", err);
-    }
-  }
-#else
   throughput_gattdb_register_char_read_cb(on_char_read);
   throughput_gattdb_register_char_write_cb(on_char_write);
   throughput_gattdb_register_ccc_changed_cb(ccc_changed);
-#endif // #ifdef CONFIG_BT_GATT_DYNAMIC_DB
 
   // Enable UI
   throughput_ui_init();

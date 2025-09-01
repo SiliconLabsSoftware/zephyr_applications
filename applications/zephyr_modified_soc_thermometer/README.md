@@ -3,17 +3,17 @@
 ![Type badge](https://img.shields.io/badge/Type-Virtual%20Application-green)
 ![Technology badge](https://img.shields.io/badge/Technology-Zephyr-green)
 ![License badge](https://img.shields.io/badge/License-Zlib-green)
-![SDK badge](https://img.shields.io/badge/Zephyr%20version-v4.0.0-green)
+![SDK badge](https://img.shields.io/badge/Zephyr%20version-v4.2.0-green)
 ![Build badge](https://img.shields.io/badge/Build-passing-green)
-![Flash badge](https://img.shields.io/badge/Flash-201.5%20KB-blue)
-![RAM badge](https://img.shields.io/badge/RAM-32.75%20KB-blue)
+![Flash badge](https://img.shields.io/badge/Flash-199.21%20KB-blue)
+![RAM badge](https://img.shields.io/badge/RAM-32.24%20KB-blue)
 ## Summary ##
 
 This example implements the Health Thermometer service. It enables a peer device to connect and receive temperature values via Bluetooth. The reported values are measured by a temperature sensor located on the mainboard.
 
 ## Zephyr version ##
 
-- [Zephyr 4.0.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.0.0)
+- [Zephyr 4.2.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.2.0)
 
 ## Hardware Required ##
 

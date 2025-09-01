@@ -106,6 +106,26 @@ static void param_updated(struct bt_conn *conn, uint16_t interval,
   k_msgq_put(&bt_evt_msgq, &bt_evt, K_FOREVER);
 }
 
+static sl_bt_gap_phy_coding_t get_bt_gap_phy_coding(uint8_t phy)
+{
+  switch (phy) {
+    case BT_CONN_LE_TX_POWER_PHY_1M:
+      return sl_bt_gap_phy_coding_1m_uncoded;
+
+    case BT_CONN_LE_TX_POWER_PHY_2M:
+      return sl_bt_gap_phy_coding_2m_uncoded;
+
+    case BT_CONN_LE_TX_POWER_PHY_CODED_S8:
+      return sl_bt_gap_phy_coding_125k_coded;
+
+    case BT_CONN_LE_TX_POWER_PHY_CODED_S2:
+      return sl_bt_gap_phy_coding_500k_coded;
+
+    default:
+      return 0;
+  }
+}
+
 static void le_phy_updated(struct bt_conn *conn,
                            struct bt_conn_le_phy_info *param)
 {
@@ -113,8 +133,8 @@ static void le_phy_updated(struct bt_conn *conn,
 
   bt_evt.id = bt_evt_le_phy_updated_id;
   bt_evt.data.le_phy_updated.conn = conn;
-  bt_evt.data.le_phy_updated.tx_phy = param->tx_phy;
-  bt_evt.data.le_phy_updated.rx_phy = param->rx_phy;
+  bt_evt.data.le_phy_updated.tx_phy = get_bt_gap_phy_coding(param->tx_phy);
+  bt_evt.data.le_phy_updated.rx_phy = get_bt_gap_phy_coding(param->rx_phy);
 
   k_msgq_put(&bt_evt_msgq, &bt_evt, K_FOREVER);
 }
@@ -134,6 +154,7 @@ static void le_data_len_updated(struct bt_conn *conn,
   k_msgq_put(&bt_evt_msgq, &bt_evt, K_FOREVER);
 }
 
+#if defined(CONFIG_BT_TRANSMIT_POWER_CONTROL)
 static void tx_power_report(struct bt_conn *conn,
                             const struct bt_conn_le_tx_power_report *report)
 {
@@ -143,13 +164,15 @@ static void tx_power_report(struct bt_conn *conn,
   bt_evt.data.tx_power_report.conn = conn;
   bt_evt.data.tx_power_report.conn = conn;
   bt_evt.data.tx_power_report.reason = report->reason;
-  bt_evt.data.tx_power_report.phy = report->phy;
+  bt_evt.data.tx_power_report.phy = get_bt_gap_phy_coding(report->phy);
   bt_evt.data.tx_power_report.tx_power_level = report->tx_power_level;
   bt_evt.data.tx_power_report.tx_power_level_flag = report->tx_power_level_flag;
   bt_evt.data.tx_power_report.delta = report->delta;
 
   k_msgq_put(&bt_evt_msgq, &bt_evt, K_FOREVER);
 }
+
+#endif /* CONFIG_BT_TRANSMIT_POWER_CONTROL */
 
 static struct bt_conn_cb conn_callbacks = {
   .connected = connected,
@@ -158,7 +181,9 @@ static struct bt_conn_cb conn_callbacks = {
   .le_param_updated = param_updated,
   .le_phy_updated = le_phy_updated,
   .le_data_len_updated = le_data_len_updated,
+#if defined(CONFIG_BT_TRANSMIT_POWER_CONTROL)
   .tx_power_report = tx_power_report,
+#endif /* CONFIG_BT_TRANSMIT_POWER_CONTROL */
 };
 
 static void mtu_exchange_callback(struct bt_conn *conn, uint8_t err,

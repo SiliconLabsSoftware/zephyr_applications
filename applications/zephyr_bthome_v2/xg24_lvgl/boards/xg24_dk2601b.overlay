@@ -5,6 +5,7 @@
  */
 
 #include <dt-bindings/clock/silabs/xg24-clock.h>
+#include <dt-bindings/adc/silabs-adc.h>
 #include <zephyr/dt-bindings/pinctrl/gecko-pinctrl.h>
 #include <zephyr/dt-bindings/input/input-resistive-touchscreen-4wire.h>
 #include <zephyr/dt-bindings/display/ili9xxx.h>
@@ -13,8 +14,8 @@
 	chosen {
 		zephyr,display = &adafruit_2_4_tft_touch_v2_ili9341;
 		sw0 = &button0;
-		/delete-property/ zephyr,console;
-        /delete-property/ zephyr,shell-uart;
+		// /delete-property/ zephyr,console;
+        // /delete-property/ zephyr,shell-uart;
 	};
 	
 	aliases {
@@ -23,7 +24,7 @@
  
 	adafruit_2_4_tft_mipi_dbi {
 		compatible = "zephyr,mipi-dbi-spi";
-		spi-dev = <&usart0>;
+		spi-dev = <&eusart1>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		status = "okay";
@@ -68,6 +69,8 @@
 };
 
 &adc0 {
+	pinctrl-0 = <&adc0_default>;
+	pinctrl-names = "default";
 	status = "okay";
 	#address-cells = <1>;
 	#size-cells = <0>;
@@ -76,18 +79,20 @@
 		reg = <0>;
 		zephyr,gain = "ADC_GAIN_1";
 		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,vref-mv = <3300>;
 		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
 		zephyr,resolution = <12>;
-		zephyr,input-positive = <(((1 + 8) << 4) | 2)>; // XM = PB2
+		zephyr,input-positive = <IADC_INPUT_PB2>; // XM = PB2
 	};
 
 	channel@1 {
 		reg = <1>;
 		zephyr,gain = "ADC_GAIN_1";
 		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,vref-mv = <3300>;
 		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
 		zephyr,resolution = <12>;
-		zephyr,input-positive = <(((1 + 8) << 4) | 0)>; // YP = PB0
+		zephyr,input-positive = <IADC_INPUT_PB0>; // YP = PB0
 	};
 
 	resistive_touch: resistive_touch {
@@ -117,21 +122,12 @@
 	};
 };
 
-&usart0 {
-	/delete-property/ current-speed;
-	compatible = "silabs,gecko-spi-usart";
-	pinctrl-0 = <&eusart1_default>;
-	pinctrl-names = "default";
-	reg = <0x5005C000 0x306c>;
-	#address-cells = <1>;
-	#size-cells = <0>;
-	interrupts = <9 0>, <10 0>;
-	interrupt-names = "rx", "tx";
+&eusart1 {
 	status = "okay";
 	clock-frequency = <18000000>;
 	cs-gpios = <&gpioa 7 GPIO_ACTIVE_LOW>, <&gpioa 5 GPIO_ACTIVE_LOW>;
-  
-	icm20689@0 {
+
+	icm20689@1 {
 		compatible = "invensense,icm20689";
 		spi-max-frequency = <2400000>;
 		reg = <0>;
@@ -146,20 +142,23 @@
 };
 
 &pinctrl {
-	eusart1_default: eusart1_default {
+	usart0_default: usart0_default {
+		group0 {
+			pins = <USART0_TX_PD4>;
+			drive-push-pull;
+			output-high;
+		};
+
 		group1 {
-			psels = <GECKO_PSEL(SPI_SCK, C, 1)>,
-				<GECKO_PSEL(SPI_MOSI, C, 3)>,
-				<GECKO_PSEL(SPI_MISO, C, 2)>;
+			pins = <USART0_RX_PD5>;
+			input-enable;
+			silabs,input-filter;
 		};
 	};
-
-	usart0_default: usart0_default {
-		group1 {
-			/* configure PD.5 as UART_RX and PD.4 as UART_TX */
-			psels = <GECKO_PSEL(UART_TX, D, 4)>,
-				<GECKO_PSEL(UART_RX, D, 5)>,
-				<GECKO_LOC(UART, 0)>;
+	adc0_default: adc0_default {
+		group0 {
+			/* Allocate odd bus 0 on GPIO port B to IADC for access to pin PB1 */
+			silabs,analog-bus = <ABUS_BEVEN0_IADC0>;
 		};
 	};
 };
@@ -195,4 +194,3 @@
 	startup-delay-us = <100000>;
 	status = "okay";
 };
-

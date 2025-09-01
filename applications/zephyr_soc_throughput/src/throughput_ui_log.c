@@ -80,6 +80,7 @@
  ******************************************************************************/
 /// Internal state
 static throughput_t ui_state;
+static throughput_t ui_state_last;
 
 /*******************************************************************************
  **************************   LOCAL FUNCTIONS   ********************************
@@ -94,6 +95,10 @@ static void refresh_ui(uint8_t refresh_row)
   uint8_t row_begin = 0;
   uint8_t row_end = THROUGHPUT_UI_ROWS;
 
+  if (0 == memcmp(&ui_state_last, &ui_state, sizeof(throughput_t))) {
+    return;
+  }
+  ui_state_last = ui_state;
   if (refresh_row != ROW_ALL) {
     row_begin = refresh_row;
     row_end = row_begin + 1;

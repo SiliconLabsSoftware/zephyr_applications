@@ -1,0 +1,9 @@
+sample:
+  description: The example demonstrate how to use ST7789 SPI display 
+    with MIPI driver class on Zephyr OS
+  name: Zephyr - ST7789 SPI display demo
+
+tests:
+  sample.basic.zephyr_st7789_demo:
+    platform_allow : efr32xg24_brd4187c
+    tags: experimental

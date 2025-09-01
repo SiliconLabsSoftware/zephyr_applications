@@ -41,6 +41,7 @@
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/gap.h>
+#include "throughput_ui_types.h"
 
 #define ADV_DATA_MAX_LENGTH 255
 typedef struct {
@@ -61,7 +62,9 @@ enum bt_evt_event_id {
   bt_evt_le_phy_updated_id,
   bt_evt_le_data_len_updated_id,
   bt_evt_le_scan_report_id,
+#if defined(CONFIG_BT_TRANSMIT_POWER_CONTROL)
   bt_evt_tx_power_report_id,
+#endif /* CONFIG_BT_TRANSMIT_POWER_CONTROL */
   bt_evt_exchange_mtu_id,
   bt_evt_gatt_discover_attrs_id,
   bt_evt_gatt_characteristic_subscribe_status_id,
@@ -100,14 +103,16 @@ struct bt_evt {
 
     bt_evt_le_scan_report_t le_scan_report;
 
+#if defined(CONFIG_BT_TRANSMIT_POWER_CONTROL)
     struct {
       struct bt_conn *conn;
       uint8_t reason;
-      enum bt_conn_le_tx_power_phy phy;
+      sl_bt_gap_phy_coding_t phy;
       int8_t tx_power_level;
       uint8_t tx_power_level_flag;
       int8_t delta;
     } tx_power_report;
+#endif /* CONFIG_BT_TRANSMIT_POWER_CONTROL */
 
     struct {
       struct bt_conn *conn;
@@ -116,8 +121,8 @@ struct bt_evt {
 
     struct {
       struct bt_conn *conn;
-      uint8_t tx_phy;
-      uint8_t rx_phy;
+      sl_bt_gap_phy_coding_t tx_phy;
+      sl_bt_gap_phy_coding_t rx_phy;
     } le_phy_updated;
 
     struct {

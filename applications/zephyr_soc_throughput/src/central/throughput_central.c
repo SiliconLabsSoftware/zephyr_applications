@@ -468,12 +468,14 @@ static void throughput_central_event_handle(struct bt_evt *evt)
       LOG_INF("[STATUS] CONNECTED");
       throughput_central_on_state_change(central_state.state);
 
+#if defined(CONFIG_BT_TRANSMIT_POWER_CONTROL)
       // Set remote connection power reporting - needed for Power Control
       err = bt_conn_le_set_tx_power_report_enable(ble_conn, true,
                                                   power_control_enabled);
       if (err) {
         LOG_ERR(" Set power reporting failed (err %d)", err);
       }
+#endif /* CONFIG_BT_TRANSMIT_POWER_CONTROL */
       central_state.discovery_state = THROUGHPUT_DISCOVERY_STATE_SERVICE;
       throughput_central_on_discovery_state_change(central_state.discovery_state);
 
@@ -595,11 +597,13 @@ static void throughput_central_event_handle(struct bt_evt *evt)
                                                        central_state.mtu_size);
       break;
 
+#if defined(CONFIG_BT_TRANSMIT_POWER_CONTROL)
     case bt_evt_tx_power_report_id:
       LOG_INF("bt_evt_tx_power_report_id");
       central_state.phy = evt->data.tx_power_report.phy;
       central_state.tx_power = evt->data.tx_power_report.tx_power_level;
       break;
+#endif /* CONFIG_BT_TRANSMIT_POWER_CONTROL */
 
     case bt_evt_gatt_characteristic_notification_id:
       if (evt->data.gatt_characteristic_notification.value_handle

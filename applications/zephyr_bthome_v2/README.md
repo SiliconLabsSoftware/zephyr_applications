@@ -3,18 +3,19 @@
 ![Type badge](https://img.shields.io/badge/Type-Virtual%20Application-green)
 ![Technology badge](https://img.shields.io/badge/Technology-Zephyr-green)
 ![License badge](https://img.shields.io/badge/License-Zlib-green)
-![SDK badge](https://img.shields.io/badge/Zephyr%20version-v4.0.0-green)
+![SDK badge](https://img.shields.io/badge/Zephyr%20version-v4.2.0-green)
 [![Required board](https://img.shields.io/badge/Adafruit-2.8"%20TFT%20LCD%20with%20Touchscreen%20Breakout%20Board%20w/MicroSD%20Socket-green)](https://www.adafruit.com/product/1770)
 ![Build badge](https://img.shields.io/badge/Build-passing-green)
-![Flash badge](https://img.shields.io/badge/Flash-236.08%20KB-blue)
-![RAM badge](https://img.shields.io/badge/RAM-48.71%20KB-blue)
+![Flash badge](https://img.shields.io/badge/Flash-234.98%20KB-blue)
+![RAM badge](https://img.shields.io/badge/RAM-39.22%20KB-blue)
+
 ## Summary ##
 
 This example demonstrates communication between xG24 and xG27 Dev Kits, based on Zephyr OS and a Home Assistant server. By using the Home Assistant, you could monitor sensor values, such as temperature, humidity, illuminance, etc. Additionally, it is also possible to interact with devices by touching the screen directly, which is designed with the LVGL library.
 
 ## Zephyr version ##
 
-- [Zephyr 4.0.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.0.0)
+- [Zephyr 4.2.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.2.0)
 
 ## Hardware Required ##
 
@@ -38,15 +39,17 @@ To connect the Adafruit 2.8" TFT LCD (with Touchscreen) with the EFR32xG24 Devel
 
 | EFR32xG24 Dev Kit | Connection | Pin function |
 | --- | --- | --- |
-| PA6 | D/C | GPIO |
-| PA5 | CS | SPI CS |
-| PC1 | CLK | SPI SCK |
-| PC2 | MISO | SPI MISO |
-| PC3 | MOSI | SPI MOSI |
-| PB2 | XM(X-) | AN |
-| PD2 | XP(X+) | AN |
-| PB3 | YM(Y-) | AN |
-| PB0 | YP(Y+) | AN |
+| GND (EXP1) | GND | Power |
+| VMCU (EXP2) | 3.3V | Power |
+| PA6 (EXP14) | D/C | GPIO |
+| PA5 (EXP12) | CS | SPI CS |
+| PC1 (EXP8) | CLK | SPI SCK |
+| PC2 (EXP6) | MISO | SPI MISO |
+| PC3 (EXP4) | MOSI | SPI MOSI |
+| PB2 (EXP3) | XM(X-) | AN |
+| PD2 (EXP13) | XP(X+) | AN |
+| PB3 (EXP11) | YM(Y-) | AN |
+| PB0 (EXP9) | YP(Y+) | AN |
 
 ## Setup ##
 

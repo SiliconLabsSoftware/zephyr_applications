@@ -3,11 +3,11 @@
 ![Type badge](https://img.shields.io/badge/Type-Virtual%20Application-green)
 ![Technology badge](https://img.shields.io/badge/Technology-Zephyr-green)
 ![License badge](https://img.shields.io/badge/License-Zlib-green)
-![SDK badge](https://img.shields.io/badge/Zephyr%20version-v4.0.0-green)
+![SDK badge](https://img.shields.io/badge/Zephyr%20version-v4.2.0-green)
 [![Required board](https://img.shields.io/badge/Mikroe-OLED%20W%20Click-green)](https://www.mikroe.com/oled-w-click)
 ![Build badge](https://img.shields.io/badge/Build-passing-green)
-![Flash badge](https://img.shields.io/badge/Flash-64.9%20KB-blue)
-![RAM badge](https://img.shields.io/badge/RAM-14.55%20KB-blue)
+![Flash badge](https://img.shields.io/badge/Flash-65.47%20KB-blue)
+![RAM badge](https://img.shields.io/badge/RAM-14.58%20KB-blue)
 ## Summary ##
 
 The example demonstrates how the Zephyr OS is supported by the development kits of Silicon Labs. In this example, you can see the utilization of the built-in Si7210 Hall Effect Magnetic sensor and a MikroE OLED W Click board.
@@ -16,7 +16,7 @@ The application makes the detection of magnetic objects possible and it interact
 
 ## Zephyr version ##
 
-- [Zephyr 4.0.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.0.0)
+- [Zephyr 4.2.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.2.0)
 
 ## Hardware Required ##
 

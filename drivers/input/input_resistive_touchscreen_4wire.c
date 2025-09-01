@@ -65,13 +65,6 @@ struct touchscreen_adc_channels {
   const struct adc_channel_config *yp_cfg;
 };
 
-int resistive_touchscreen_4wire_num_axes(const struct device *dev)
-{
-  const struct touchscreen_config *cfg = dev->config;
-
-  return cfg->num_channels;
-}
-
 int resistive_touchscreen_4wire_calibration_get(const struct device *dev,
                                                 struct resistive_touchscreen_4wire_calibration *out_cal)
 {

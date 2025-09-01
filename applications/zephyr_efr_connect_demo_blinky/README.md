@@ -3,10 +3,10 @@
 ![Type badge](https://img.shields.io/badge/Type-Virtual%20Application-green)
 ![Technology badge](https://img.shields.io/badge/Technology-Zephyr-green)
 ![License badge](https://img.shields.io/badge/License-Zlib-green)
-![SDK badge](https://img.shields.io/badge/Zephyr%20version-v4.0.0-green)
+![SDK badge](https://img.shields.io/badge/Zephyr%20version-v4.2.0-green)
 ![Build badge](https://img.shields.io/badge/Build-passing-green)
-![Flash badge](https://img.shields.io/badge/Flash-194.59%20KB-blue)
-![RAM badge](https://img.shields.io/badge/RAM-31.97%20KB-blue)
+![Flash badge](https://img.shields.io/badge/Flash-215.71%20KB-blue)
+![RAM badge](https://img.shields.io/badge/RAM-31.59%20KB-blue)
 
 ## Summary ##
 
@@ -14,7 +14,7 @@ The example demonstrates how the Zephyr OS is supported by the development kits 
 
 ## Zephyr version ##
 
-- [Zephyr 4.0.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.0.0)
+- [Zephyr 4.2.0](https://github.com/zephyrproject-rtos/zephyr/tree/v4.2.0)
 
 ## Hardware Required ##
 
@@ -25,6 +25,7 @@ The example demonstrates how the Zephyr OS is supported by the development kits 
    | BRD4184B | [SLTB010A](https://www.silabs.com/development-tools/thunderboard/thunderboard-bg22-kit?tab=overview) EFR32BG22 Thunderboard Kit |
    | BRD2601B | [xG24-DK2601B](https://www.silabs.com/development-tools/wireless/efr32xg24-dev-kit?tab=overview) EFR32xG24 Dev Kit |
    | BRD2602A | [xG27-DK2602A](https://www.silabs.com/development-tools/wireless/efr32xg27-development-kit?tab=overview) EFR32xG27 Development Kit |
+   | ABX00112 | [Arduino Nano Matter](https://store.arduino.cc/products/nano-matter) Arduino Nano Matter Board |
 
 - 1x Smartphone runs the Simplicity Connect Mobile App
 
@@ -50,14 +51,17 @@ To run the example, you should follow the below steps:
    - EFR32BG22 Thunderboard Kit - BRD4184B: **`west build -p -b sltb010a zephyr_applications/applications/zephyr_efr_connect_demo_blinky`**
    - EFR32xG24 Dev Kit - BRD2601B: **`west build -p -b xg24_dk2601b zephyr_applications/applications/zephyr_efr_connect_demo_blinky`**
    - EFR32xG27 Dev Kit - BRD2602A: **`west build -p -b xg27_dk2602a zephyr_applications/applications/zephyr_efr_connect_demo_blinky`**
+   - Arduino Nano Matter Board - ABX00112: **`west build -p -b arduino_nano_matter zephyr_applications/applications/zephyr_efr_connect_demo_blinky`**
 
-4. Flash the project to the board using **`west flash`** command.
+4. Flash the project to the board using **`west flash`** command. 
 
-**Note:**
-
-- Make sure that the Zephyr OS environment is already installed. For installing the Zephyr OS environment, you can refer to [this guide](../../README.md#setting-up-environment).
-
-- You need to install the SEGGER RTT J-Link driver to flash this project to the board. For further information, please refer to [this section](../../README.md#flash-the-application).
+> [!NOTE]
+>
+> - Make sure that the Zephyr OS environment has already been installed. For installing the Zephyr OS environment, you can refer to [this guide](../../README.md#setting-up-environment).
+>
+> - You need to install the SEGGER RTT J-Link driver to flash this project to the board. For further information, please refer to [this section](../../README.md#flash-the-application).
+>
+> - If the Arduino Nano Matter board is being used, you need to install the OpenOCD tool to flash this project to the target board. For further information, please refer to [this guide](../../README.OpenOCD.md) for instructions on compiling, installing, and running OpenOCD for flashing and debugging.
 
 ## How It Works ##
 
